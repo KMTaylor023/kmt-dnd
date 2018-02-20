@@ -1,33 +1,35 @@
 const http = require('http');
 const fs = require('fs');
 const url = require('url');
+const fileHandler = require('./fileResponses.js');
+const characterHandler = require('./characterResponses.js');
 
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
-const index = fs.readFileSync(`${__dirname}/../hosted/index.html`);
-const bundle = fs.readFileSync(`${__dirname}/../hosted/bundle.js`);
 
 const characters = {};
 
 
 const apiFunctions = {
-  
+  '/' : fileHandler.getIndex,
+  '/bundle.js' : fileHandler.getBundle,
+  '/getCharacters' : characterHandler.getCharacters,
+  notFound : fileHandler.notFound(),
 };
 
 
 const onRequest = (request, response) => {
   const parsedURL = url.parse(request.url);
-
-  if (parsedURL.pathname === '/bundle.js') {
-    response.writeHead(200, { 'Content-Type': 'application/json' });
-    response.write(bundle);
+  
+  if(apiFunctions[parsedURL.pathname]){
+    apiFunctions[parsedURL.pathname](request, response, request.method);
   } else {
-    response.writeHead(200, { 'Content-Type': 'text/html' });
-    response.write(index);
+    apiFunctions.notFound(request, response);
   }
-  response.end();
 };
+
+http.createServer(onRequest).listen(port);
 
 console.log(`Listening on 127.0.0.1:${port}`);
 
