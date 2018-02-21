@@ -1,33 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="bundle.js"></script>
+  <link rel="stylesheet" type="text/css" href="/style.css">
+  <script src="bundle.js"></script>
 </head>
 <body>
-  <form id="characterForm" action="/addCharacter" method="post">
-    <label for="name">Name: </label>
-    <input id="nameField" type="text" name="name" />
-    <label for="farmName">Farm Name: </label>
-    <input id="farmNameField" type="text" name="farmName" />
-    <label for="favoriteThing">Favorite Thing: </label>
-    <input id="favoriteField" type="text" name="favoriteThing" />
-    <select id='farmSelect'>
-      <option value='0'>Standard</option>
-      <option value='1'>Riverland</option>
-      <option value='2'>Forest</option>
-      <option value='3'>Hill-Top</option>
-      <option value='4'>Wilderness</option>
-    </select>
-    <select id='genderSelect'>
-      <option value='m'>Male</option>
-      <option value='f'>Female</option>
-    </select>
-    <select id='animalSelect'>
-      <option value='c'>Cat</option>
-      <option value='d'>Dog</option>
-    </select>
-    <input type="submit" value="Add User" />
-  </form>
+  <div class="section" id="options">
+    <button id="beginCreateButton">Create New Character</button>
+    <button id="viewListButton">View All Characters</button>
+  </div>
+  <div class="section" id="createNew">
+    <form id="characterForm" action="/addCharacter" method="post">
+      <label for="name">Name: </label>
+      <input id="nameField" type="text" name="name" />
+      <label for="farmName">Farm Name: </label>
+      <input id="farmNameField" type="text" name="farmName" />
+      <label for="favoriteThing">Favorite Thing: </label>
+      <input id="favoriteField" type="text" name="favoriteThing" />
+      <select id='farmSelect'>
+        <option value='0'>Standard</option>
+        <option value='1'>Riverland</option>
+        <option value='2'>Forest</option>
+        <option value='3'>Hill-Top</option>
+        <option value='4'>Wilderness</option>
+      </select>
+      <select id='genderSelect'>
+        <option value='m'>Male</option>
+        <option value='f'>Female</option>
+      </select>
+      <select id='animalSelect'>
+        <option value='c'>Cat</option>
+        <option value='d'>Dog</option>
+      </select>
+      <input type="submit" value="Add User" />
+    </form>
+  </div>
+  <div class="section" id=characterList>
+  </div>
+  <div id=currentCharacter>
+    <h1 id="characterName"></h1>
+    <h2 id="currentDate"></h2>
+    <p id="characterFarmName"></p>
+    <p id="characterFavoriteThing"></p>
+    <p id="characterSex"></p>
+    <p id="characterPetType"></p>
+    <p id="characterMoney"></p>
+    <!--
+    <form id="dayForm" action="/endCharacterDay" method="post">
+      <label for="made">Money Made Today: </label>
+      <input id="madeField" type="number" name="made" min="0" max="99999999" step="1" />
+      <label for="spent">Money Spent Today: </label>
+      <input id="spentField" type="number" name="spent" min="0" max="99999999" step="1" />
+      <input type="submit" value="Add User" />
+    </form>
+-->
+  </div>
   <span id="errorMsg"></span>
 </body>
 </html>
