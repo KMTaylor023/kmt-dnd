@@ -1,5 +1,9 @@
 /* eslint-env browser */
 
+let currentCharacter = '';
+
+let totalMoneyChangeTemp = 0;
+
 const handleResponse = (xhr, callback) => {
   const error = document.querySelector('#errorMsg');
   switch (xhr.status) {
@@ -18,7 +22,7 @@ const handleResponse = (xhr, callback) => {
 };
 
 const getFormData = {
-  '/addCharacter': (form) => {
+  '/addCharacter': (form) =>{
     const nameField = form.querySelector('#nameField');
     const farmNameField = form.querySelector('#farmNameField');
     const favoriteField = form.querySelector('#favoriteField');
@@ -30,6 +34,20 @@ const getFormData = {
     formData = `${formData}&fav=${favoriteField.value}&type=${farmSelect.value}`;
     formData = `${formData}&sex=${genderSelect.value}&pet=${animalSelect.value}`;
 
+    return formData;
+  },
+  '/endCharacterDay': (form) =>{
+    const madeField = form.querySelector('#madeField');
+    const spentField = form.querySelector('#spentField');
+    
+    
+    let formData = `name=${currentCharacter}&made=${madeField.value}&spent=${spentField.value}`;
+    
+    totalMoneyChangeTemp = (+madeField.value) - (+spentField.value);
+    
+    madeField.value = "";
+    spentField.value = "";
+    
     return formData;
   },
 };
@@ -57,7 +75,7 @@ const sendPost = (e, form, callback) => {
   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   xhr.setRequestHeader('Accept', 'application/json');
   xhr.onload = () => handleResponse(xhr, callback);
-
+  
   const formData = getFormData[action](form);
 
   xhr.send(formData);
@@ -78,20 +96,23 @@ const sendOther = (method, action, callback) => {
   xhr.send();
 };
 
+
 const loadCharacter = (name) => {
   sendOther('GET', `/getCharacter?name=${name}`, (xhr) => {
     const content = JSON.parse(xhr.response);
-
+    
+    currentCharacter = content.name;
+    
     showSection('currentCharacter');
 
-    const currentCharacter = document.querySelector('#currentCharacter');
-    currentCharacter.querySelector('#characterName').innerHTML = `Name: ${content.name}`;
-    currentCharacter.querySelector('#currentDate').innerHTML = `Day: ${content.day}`;
-    currentCharacter.querySelector('#characterFarmName').innerHTML = `Farm: ${content.farm}`;
-    currentCharacter.querySelector('#characterFavoriteThing').innerHTML = `Favorite Thing: ${content.fav}`;
-    currentCharacter.querySelector('#characterSex').innerHTML = `Sex: ${content.sex}`;
-    currentCharacter.querySelector('#characterPetType').innerHTML = `Pet Type: ${content.petType}`;
-    currentCharacter.querySelector('#characterMoney').innerHTML = `Money: ${content.money}`;
+    const currentChar = document.querySelector('#currentCharacter');
+    currentChar.querySelector('#characterName').innerHTML = `Name: ${content.name}`;
+    currentChar.querySelector('#currentDate').innerHTML = `Day: ${content.day}`;
+    currentChar.querySelector('#characterFarmName').innerHTML = `Farm: ${content.farm}`;
+    currentChar.querySelector('#characterFavoriteThing').innerHTML = `Favorite Thing: ${content.fav}`;
+    currentChar.querySelector('#characterSex').innerHTML = `Sex: ${content.sex}`;
+    currentChar.querySelector('#characterPetType').innerHTML = `Pet Type: ${content.petType}`;
+    currentChar.querySelector('#characterMoney').innerHTML = `Money: ${content.money}`;
   });
 };
 
@@ -164,8 +185,23 @@ const init = () => {
     loadCharacter(e.target.querySelector('#nameField').value);
   });
 
-  // const endDayForm = document.querySelector('#dayForm');
-  // const endDay = e => sendPost(e, endDayForm);
+  const endDayForm = document.querySelector('#dayForm');
+  const endDay = e => sendPost(e, endDayForm, () => {
+    const date = document.querySelector('#currentDate');
+    const money = document.querySelector('#characterMoney');
+    
+    const dateStuff = date.innerHTML.split(' ');
+    const moneyStuff = money.innerHTML.split(' ');
+    
+    const mun = +moneyStuff[1];
+    
+    let moneyTotal = mun + totalMoneyChangeTemp;
+    
+    const num = +dateStuff[1];
+    date.innerHTML = `${dateStuff[0]} ${num + 1}`;
+    money.innerHTML = `${moneyStuff[0]} ${moneyTotal}`;
+  });
+  
   const createButton = document.querySelector('#newChar');
 
 
@@ -174,6 +210,7 @@ const init = () => {
   };
 
   characterForm.addEventListener('submit', addCharacter);
+  endDayForm.addEventListener('submit', endDay);
   
   setNavigation();
   

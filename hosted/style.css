@@ -83,6 +83,7 @@ body {
     margin: 5px 5px;
     padding: 10px 20px;
     text-align: center;
+    color: black;
     background:#3c66ad;
     font-size: 16px;
     word-wrap: break-word;
@@ -92,10 +93,24 @@ body {
     text-decoration: none;
 }
 
+#newChar li a{
+  color: purple;
+}
 
-
-/* ---- end character List ---- */
 
 #characterList {
   overflow: scroll;
 }
+
+/* ---- end character List ---- */
+
+
+/* ++++ current Character ++++ */
+
+#currentCharacter {
+  text-align: center;
+}
+
+
+
+/* ---- current Character ---- */

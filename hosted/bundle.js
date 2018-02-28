@@ -2,6 +2,10 @@
 
 /* eslint-env browser */
 
+var currentCharacter = '';
+
+var totalMoneyChangeTemp = 0;
+
 var handleResponse = function handleResponse(xhr, callback) {
   var error = document.querySelector('#errorMsg');
   switch (xhr.status) {
@@ -31,6 +35,19 @@ var getFormData = {
     var formData = 'name=' + nameField.value + '&farm=' + farmNameField.value;
     formData = formData + '&fav=' + favoriteField.value + '&type=' + farmSelect.value;
     formData = formData + '&sex=' + genderSelect.value + '&pet=' + animalSelect.value;
+
+    return formData;
+  },
+  '/endCharacterDay': function endCharacterDay(form) {
+    var madeField = form.querySelector('#madeField');
+    var spentField = form.querySelector('#spentField');
+
+    var formData = 'name=' + currentCharacter + '&made=' + madeField.value + '&spent=' + spentField.value;
+
+    totalMoneyChangeTemp = +madeField.value - +spentField.value;
+
+    madeField.value = "";
+    spentField.value = "";
 
     return formData;
   }
@@ -87,16 +104,18 @@ var loadCharacter = function loadCharacter(name) {
   sendOther('GET', '/getCharacter?name=' + name, function (xhr) {
     var content = JSON.parse(xhr.response);
 
+    currentCharacter = content.name;
+
     showSection('currentCharacter');
 
-    var currentCharacter = document.querySelector('#currentCharacter');
-    currentCharacter.querySelector('#characterName').innerHTML = 'Name: ' + content.name;
-    currentCharacter.querySelector('#currentDate').innerHTML = 'Day: ' + content.day;
-    currentCharacter.querySelector('#characterFarmName').innerHTML = 'Farm: ' + content.farm;
-    currentCharacter.querySelector('#characterFavoriteThing').innerHTML = 'Favorite Thing: ' + content.fav;
-    currentCharacter.querySelector('#characterSex').innerHTML = 'Sex: ' + content.sex;
-    currentCharacter.querySelector('#characterPetType').innerHTML = 'Pet Type: ' + content.petType;
-    currentCharacter.querySelector('#characterMoney').innerHTML = 'Money: ' + content.money;
+    var currentChar = document.querySelector('#currentCharacter');
+    currentChar.querySelector('#characterName').innerHTML = 'Name: ' + content.name;
+    currentChar.querySelector('#currentDate').innerHTML = 'Day: ' + content.day;
+    currentChar.querySelector('#characterFarmName').innerHTML = 'Farm: ' + content.farm;
+    currentChar.querySelector('#characterFavoriteThing').innerHTML = 'Favorite Thing: ' + content.fav;
+    currentChar.querySelector('#characterSex').innerHTML = 'Sex: ' + content.sex;
+    currentChar.querySelector('#characterPetType').innerHTML = 'Pet Type: ' + content.petType;
+    currentChar.querySelector('#characterMoney').innerHTML = 'Money: ' + content.money;
   });
 };
 
@@ -177,8 +196,25 @@ var init = function init() {
     });
   };
 
-  // const endDayForm = document.querySelector('#dayForm');
-  // const endDay = e => sendPost(e, endDayForm);
+  var endDayForm = document.querySelector('#dayForm');
+  var endDay = function endDay(e) {
+    return sendPost(e, endDayForm, function () {
+      var date = document.querySelector('#currentDate');
+      var money = document.querySelector('#characterMoney');
+
+      var dateStuff = date.innerHTML.split(' ');
+      var moneyStuff = money.innerHTML.split(' ');
+
+      var mun = +moneyStuff[1];
+
+      var moneyTotal = mun + totalMoneyChangeTemp;
+
+      var num = +dateStuff[1];
+      date.innerHTML = dateStuff[0] + ' ' + (num + 1);
+      money.innerHTML = moneyStuff[0] + ' ' + moneyTotal;
+    });
+  };
+
   var createButton = document.querySelector('#newChar');
 
   createButton.onclick = function () {
@@ -186,6 +222,7 @@ var init = function init() {
   };
 
   characterForm.addEventListener('submit', addCharacter);
+  endDayForm.addEventListener('submit', endDay);
 
   setNavigation();
 

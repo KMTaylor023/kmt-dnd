@@ -21,20 +21,20 @@ const badRequest = (request, response, msg) => {
 const endCharacterDay = (request, response, body) => {
   let msg = 'name, made, and spent are required params';
   if (!body.name || !body.spent || !body.made) {
-    badRequest(request, response, msg);
+    return badRequest(request, response, msg);
   }
 
   msg = `no character with name ${body.name}`;
   if (!characters[body.name]) {
-    badRequest(request, response, msg);
+    return badRequest(request, response, msg);
   }
 
   msg = `made and spent must be integers from 0-${MAX_MONEY}`;
-  if (!Number.isInteger[+body.spent] || +body.spent < 0 || +body.spent >= MAX_MONEY
-      || !Number.isInteger[+body.made] || +body.made < 0 || +body.made >= MAX_MONEY) {
-    badRequest(request, response, msg);
+  if (!Number.isInteger(+body.spent) || +body.spent < 0 || +body.spent >= MAX_MONEY
+      || !Number.isInteger(+body.made) || +body.made < 0 || +body.made >= MAX_MONEY) {
+    return badRequest(request, response, msg);
   }
-
+  
   const character = characters[body.name];
   const moneyLog = characterLogs[body.name].money;
 
@@ -49,7 +49,7 @@ const endCharacterDay = (request, response, body) => {
 
   updateTime(character.lastModified);
 
-  return responder.sendResponseMeta(request, response, 204);
+  return responder.sendResponseMeta(request, response,'application/json', 204);
 };
 
 const getCharacter = (request, response, query) => {
