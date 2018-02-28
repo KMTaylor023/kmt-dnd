@@ -111,7 +111,7 @@ const getCharacterListMeta = (request, response) => responder.sendResponseMeta(
   response,
   'application/json',
   200,
-  charactersLastModified,
+  charactersLastModified
 );
 
 module.exports = {

@@ -1,8 +1,9 @@
-#createNew {
-  display: none;
+body {
+  height: 100%;
+  margin: 0;
 }
 
-#characterList {
+#createNew {
   display: none;
 }
 
@@ -12,4 +13,89 @@
 
 #currentCharacter {
   display: none;
+}
+
+/* ++++ navigation. ++++*/
+/* Code thanks to https://www.w3schools.com/css/css_navbar.asp */
+#nav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+#nav li {
+    float: left;
+}
+
+#nav li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+#nav li a:hover {
+    background-color: #111;
+}
+
+/* ---- end navigation ---- */
+
+/* ++++ flex ++++ */
+/* thanks to https://stackoverflow.com/questions/90178/make-a-div-fill-the-height-of-the-remaining-screen-space */
+
+#flexContent {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+#flexContent ul {
+  flex: 0 1 40px
+}
+
+#flexContent div {
+  flex: 1 1 auto;
+}
+
+/* ---- end flex ---- */
+
+/* ++++ character List ++++ */
+
+#chars {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #333;
+}
+
+#chars li {
+    float: left;
+    margin: 0 0;
+}
+
+#chars li a {
+    display: block;
+    width: 100px;
+    height: 200px;
+    margin: 5px 5px;
+    padding: 10px 20px;
+    text-align: center;
+    background:#3c66ad;
+    font-size: 16px;
+    word-wrap: break-word;
+    font-weight: bold;
+    border-radius: 5px;
+  
+    text-decoration: none;
+}
+
+
+
+/* ---- end character List ---- */
+
+#characterList {
+  overflow: scroll;
 }

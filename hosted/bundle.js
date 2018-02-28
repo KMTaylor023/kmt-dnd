@@ -103,41 +103,70 @@ var loadCharacter = function loadCharacter(name) {
 var setupLists = function setupLists(xhr) {
   var content = JSON.parse(xhr.response);
 
-  var s = document.querySelector('#listSelect');
-  if (s) {
-    s.parentNode.removeChild(s);
+  var newChar = document.querySelector('#newChar');
+  var ul = newChar.parentElement;
+
+  var curUpdate = +ul.getAttribute('lastModified');
+  if (curUpdate > content.lastModified) {
+    return;
   }
 
-  var select = document.createElement('select');
-  select.id = 'listSelect';
-  select.setAttribute('lastModified', content.lastModified);
+  while (ul.firstChild) {
+    ul.removeChild(ul.firstChild);
+  }
+
+  ul.appendChild(newChar);
+
+  ul.setAttribute('lastModified', content.lastModified);
 
   var list = content.names;
-  list.unshift('');
 
-  console.dir(content.names);
+  var _loop = function _loop(i) {
+    var char = newChar.cloneNode(true);
+    char.querySelector('h1').innerHTML = list[i];
 
-  for (var i = 0; i < list.length; i++) {
-    console.log(list[i]);
-    var option = document.createElement('option');
-    option.setAttribute('value', list[i]);
-    option.innerHTML = list[i];
+    char.onclick = function () {
+      return loadCharacter(list[i]);
+    };
 
-    select.appendChild(option);
-  }
-
-  select.onchange = function (e) {
-    if (e.target.value) {
-      loadCharacter(e.target.value);
-    }
+    ul.appendChild(char);
   };
 
-  document.querySelector('#characterList').appendChild(select);
+  for (var i = 0; i < list.length; i++) {
+    _loop(i);
+  }
 };
 
 var showList = function showList() {
   sendOther('GET', '/getCharacterList', setupLists);
   showSection('characterList');
+};
+
+var navButton = function navButton(e, section) {
+  showSection(section);
+
+  e.preventDefault();
+  return false;
+};
+
+var setNavigation = function setNavigation() {
+  var navas = document.querySelectorAll('.nava');
+  for (var i = 0; i < navas.length; i++) {
+    switch (navas[i].innerHTML) {
+      case 'Character':
+        navas[i].onclick = function (e) {
+          return navButton(e, 'currentCharacter');
+        };
+        break;
+      default:
+        navas[i].onclick = function (e) {
+          showList();
+          e.preventDefault();
+          return false;
+        };
+        break;
+    }
+  }
 };
 
 var init = function init() {
@@ -150,17 +179,17 @@ var init = function init() {
 
   // const endDayForm = document.querySelector('#dayForm');
   // const endDay = e => sendPost(e, endDayForm);
-
-  var listButton = document.querySelector('#viewListButton');
-  var createButton = document.querySelector('#beginCreateButton');
+  var createButton = document.querySelector('#newChar');
 
   createButton.onclick = function () {
     showSection('createNew');
   };
 
-  listButton.onclick = showList;
-
   characterForm.addEventListener('submit', addCharacter);
+
+  setNavigation();
+
+  showList();
 };
 
 window.onload = init;

@@ -97,41 +97,65 @@ const loadCharacter = (name) => {
 
 const setupLists = (xhr) => {
   const content = JSON.parse(xhr.response);
+  
 
-
-  const s = document.querySelector('#listSelect');
-  if (s) {
-    s.parentNode.removeChild(s);
+  const newChar = document.querySelector('#newChar');
+  const ul = newChar.parentElement;
+  
+  
+  const curUpdate = +ul.getAttribute('lastModified');
+  if(curUpdate > content.lastModified){
+    return;
   }
+  
+  while(ul.firstChild){
+    ul.removeChild(ul.firstChild)
+  }
+  
+  ul.appendChild(newChar);
 
-  const select = document.createElement('select');
-  select.id = 'listSelect';
-  select.setAttribute('lastModified', content.lastModified);
+  ul.setAttribute('lastModified', content.lastModified);
 
   const list = content.names;
-  list.unshift('');
-
-  console.dir(content.names);
 
   for (let i = 0; i < list.length; i++) {
-    console.log(list[i]);
-    const option = document.createElement('option');
-    option.setAttribute('value', list[i]);
-    option.innerHTML = list[i];
+    const char = newChar.cloneNode(true);
+    char.querySelector('h1').innerHTML = list[i];
+    
+    char.onclick = () => loadCharacter(list[i]);
 
-    select.appendChild(option);
+    ul.appendChild(char);
   }
-
-  select.onchange = (e) => {
-    if (e.target.value) { loadCharacter(e.target.value); }
-  };
-
-  document.querySelector('#characterList').appendChild(select);
 };
 
 const showList = () => {
   sendOther('GET', '/getCharacterList', setupLists);
   showSection('characterList');
+};
+
+const navButton = (e,section) =>{
+  showSection(section);
+  
+  e.preventDefault();
+  return false;
+};
+
+const setNavigation = () =>{
+  let navas = document.querySelectorAll('.nava');
+  for(let i = 0; i < navas.length; i++){
+    switch(navas[i].innerHTML){
+      case 'Character':
+        navas[i].onclick = (e) =>navButton(e,'currentCharacter');
+        break;
+      default:
+        navas[i].onclick = (e) =>{
+          showList()
+          e.preventDefault();
+          return false;
+        };
+        break;
+    }
+  }
 };
 
 const init = () => {
@@ -142,18 +166,18 @@ const init = () => {
 
   // const endDayForm = document.querySelector('#dayForm');
   // const endDay = e => sendPost(e, endDayForm);
-
-  const listButton = document.querySelector('#viewListButton');
-  const createButton = document.querySelector('#beginCreateButton');
+  const createButton = document.querySelector('#newChar');
 
 
   createButton.onclick = () => {
     showSection('createNew');
   };
 
-  listButton.onclick = showList;
-
   characterForm.addEventListener('submit', addCharacter);
+  
+  setNavigation();
+  
+  showList();
 };
 
 window.onload = init;
