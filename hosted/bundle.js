@@ -122,7 +122,7 @@ var loadCharacter = function loadCharacter(name) {
 var setupLists = function setupLists(xhr) {
   var content = JSON.parse(xhr.response);
 
-  var newChar = document.querySelector('#newChar');
+  var newChar = document.querySelector('.newChar');
   var ul = newChar.parentElement;
 
   var curUpdate = +ul.getAttribute('lastModified');
@@ -142,6 +142,7 @@ var setupLists = function setupLists(xhr) {
 
   var _loop = function _loop(i) {
     var char = newChar.cloneNode(true);
+    char.setAttribute('class', 'char');
     char.querySelector('h1').innerHTML = list[i];
 
     char.onclick = function () {
@@ -161,20 +162,15 @@ var showList = function showList() {
   showSection('characterList');
 };
 
-var navButton = function navButton(e, section) {
-  showSection(section);
-
-  e.preventDefault();
-  return false;
-};
-
 var setNavigation = function setNavigation() {
   var navas = document.querySelectorAll('.nava');
   for (var i = 0; i < navas.length; i++) {
     switch (navas[i].innerHTML) {
       case 'Character':
         navas[i].onclick = function (e) {
-          return navButton(e, 'currentCharacter');
+          if (currentCharacter !== '') showSection('currentCharacter');
+          e.preventDefault();
+          return false;
         };
         break;
       default:
@@ -215,7 +211,7 @@ var init = function init() {
     });
   };
 
-  var createButton = document.querySelector('#newChar');
+  var createButton = document.querySelector('.newChar');
 
   createButton.onclick = function () {
     showSection('createNew');

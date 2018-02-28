@@ -2,26 +2,24 @@
 <html lang="en">
 <head>
   <link rel="stylesheet" type="text/css" href="/style.css">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="bundle.js"></script>
 </head>
 <body>
   <div id="flexContent">
     <header>
       <ul id="nav">
-        <li><a class="nava" href="#">Home</a></li>
-        <li><a class="nava" href="#">Character</a></li>
-        <li><a class="nava" href="#">Graph</a></li>
-        <li><a class="nava" href="#">Bundles</a></li>
+        <li><a class="nava" id="home" href="#">Home</a></li>
+        <li><a class="nava" id="char" href="#">Character</a></li>
       </ul>
     </header>
     <div class="section" id="createNew">
       <form id="characterForm" action="/addCharacter" method="post">
-        <label for="name">Name: </label>
-        <input id="nameField" type="text" name="name" />
-        <label for="farmName">Farm Name: </label>
-        <input id="farmNameField" type="text" name="farmName" />
-        <label for="favoriteThing">Favorite Thing: </label>
-        <input id="favoriteField" type="text" name="favoriteThing" />
+        <h3>Create a New Character</h3>
+        <h4>All fields are required</h4>
+        <input id="nameField" type="text" placeholder="Character Name" required autofocus/>
+        <input id="farmNameField" type="text" placeholder="Farm Name" required/>
+        <input id="favoriteField" type="text" placeholder="Favorite Thing" required/>
         <select id='farmSelect'>
           <option value='0'>Standard</option>
           <option value='1'>Riverland</option>
@@ -42,27 +40,29 @@
     </div>
     <div class="section" id='characterList'>
       <ul lastModified='0' id="chars">
-        <li id="newChar" class="charBox"><a href="#">
+        <li class="newChar" class="charBox"><a href="#">
           <h1>Create New</h1>
           <p></p>
         </a></li>
       </ul>
     </div>
     <div class="section" id="currentCharacter">
-      <h1 id="characterName">No Character Selected</h1>
-      <h2 id="currentDate"></h2>
-      <p id="characterFarmName"></p>
-      <p id="characterFavoriteThing"></p>
-      <p id="characterSex"></p>
-      <p id="characterPetType"></p>
-      <p id="characterMoney"></p>
       <form id="dayForm" action="/endCharacterDay" method="post">
+        <h3 id="characterName">No Character Selected</h3>
+        <h4 id="currentDate"></h4>
+        <p id="characterFarmName"></p>
+        <p id="characterFavoriteThing"></p>
+        <p id="characterSex"></p>
+        <p id="characterPetType"></p>
+        <p id="characterMoney"></p>
         <label for="made">Money Made Today: </label>
         <input id="madeField" type="number" name="made" min="0" max="99999999" step="1" />
         <label for="spent">Money Spent Today: </label>
         <input id="spentField" type="number" name="spent" min="0" max="99999999" step="1" />
-        <input type="submit" value="Add User" />
+        <input type="submit" value="Next Day" />
       </form>
+    </div>
+    <div class='section' id='graphSection'>
     </div>
     <span id="errorMsg"></span>
   </div>

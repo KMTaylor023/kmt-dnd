@@ -1,5 +1,6 @@
 /* eslint-env browser */
 
+
 let currentCharacter = '';
 
 let totalMoneyChangeTemp = 0;
@@ -22,7 +23,7 @@ const handleResponse = (xhr, callback) => {
 };
 
 const getFormData = {
-  '/addCharacter': (form) =>{
+  '/addCharacter': (form) => {
     const nameField = form.querySelector('#nameField');
     const farmNameField = form.querySelector('#farmNameField');
     const favoriteField = form.querySelector('#favoriteField');
@@ -36,18 +37,18 @@ const getFormData = {
 
     return formData;
   },
-  '/endCharacterDay': (form) =>{
+  '/endCharacterDay': (form) => {
     const madeField = form.querySelector('#madeField');
     const spentField = form.querySelector('#spentField');
-    
-    
-    let formData = `name=${currentCharacter}&made=${madeField.value}&spent=${spentField.value}`;
-    
+
+
+    const formData = `name=${currentCharacter}&made=${madeField.value}&spent=${spentField.value}`;
+
     totalMoneyChangeTemp = (+madeField.value) - (+spentField.value);
-    
-    madeField.value = "";
-    spentField.value = "";
-    
+
+    madeField.value = '';
+    spentField.value = '';
+
     return formData;
   },
 };
@@ -75,7 +76,7 @@ const sendPost = (e, form, callback) => {
   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   xhr.setRequestHeader('Accept', 'application/json');
   xhr.onload = () => handleResponse(xhr, callback);
-  
+
   const formData = getFormData[action](form);
 
   xhr.send(formData);
@@ -100,9 +101,9 @@ const sendOther = (method, action, callback) => {
 const loadCharacter = (name) => {
   sendOther('GET', `/getCharacter?name=${name}`, (xhr) => {
     const content = JSON.parse(xhr.response);
-    
+
     currentCharacter = content.name;
-    
+
     showSection('currentCharacter');
 
     const currentChar = document.querySelector('#currentCharacter');
@@ -118,21 +119,21 @@ const loadCharacter = (name) => {
 
 const setupLists = (xhr) => {
   const content = JSON.parse(xhr.response);
-  
 
-  const newChar = document.querySelector('#newChar');
+
+  const newChar = document.querySelector('.newChar');
   const ul = newChar.parentElement;
-  
-  
+
+
   const curUpdate = +ul.getAttribute('lastModified');
-  if(curUpdate > content.lastModified){
+  if (curUpdate > content.lastModified) {
     return;
   }
-  
-  while(ul.firstChild){
-    ul.removeChild(ul.firstChild)
+
+  while (ul.firstChild) {
+    ul.removeChild(ul.firstChild);
   }
-  
+
   ul.appendChild(newChar);
 
   ul.setAttribute('lastModified', content.lastModified);
@@ -141,8 +142,9 @@ const setupLists = (xhr) => {
 
   for (let i = 0; i < list.length; i++) {
     const char = newChar.cloneNode(true);
+    char.setAttribute('class', 'char');
     char.querySelector('h1').innerHTML = list[i];
-    
+
     char.onclick = () => loadCharacter(list[i]);
 
     ul.appendChild(char);
@@ -154,30 +156,20 @@ const showList = () => {
   showSection('characterList');
 };
 
-const navButton = (e,section) =>{
-  showSection(section);
-  
-  e.preventDefault();
-  return false;
+
+const setNavigation = () => {
+  document.querySelector('#homenav').onclick = (e) => {
+    if (currentCharacter !== '') { showSection('currentCharacter'); }
+    e.preventDefault();
+    return false;
+  };
+  document.querySelector('#charnav').onclick = (e) => {
+    showList();
+    e.preventDefault();
+    return false;
+  };
 };
 
-const setNavigation = () =>{
-  let navas = document.querySelectorAll('.nava');
-  for(let i = 0; i < navas.length; i++){
-    switch(navas[i].innerHTML){
-      case 'Character':
-        navas[i].onclick = (e) =>navButton(e,'currentCharacter');
-        break;
-      default:
-        navas[i].onclick = (e) =>{
-          showList()
-          e.preventDefault();
-          return false;
-        };
-        break;
-    }
-  }
-};
 
 const init = () => {
   const characterForm = document.querySelector('#characterForm');
@@ -189,20 +181,20 @@ const init = () => {
   const endDay = e => sendPost(e, endDayForm, () => {
     const date = document.querySelector('#currentDate');
     const money = document.querySelector('#characterMoney');
-    
+
     const dateStuff = date.innerHTML.split(' ');
     const moneyStuff = money.innerHTML.split(' ');
-    
+
     const mun = +moneyStuff[1];
-    
-    let moneyTotal = mun + totalMoneyChangeTemp;
-    
+
+    const moneyTotal = mun + totalMoneyChangeTemp;
+
     const num = +dateStuff[1];
     date.innerHTML = `${dateStuff[0]} ${num + 1}`;
     money.innerHTML = `${moneyStuff[0]} ${moneyTotal}`;
   });
-  
-  const createButton = document.querySelector('#newChar');
+
+  const createButton = document.querySelector('.newChar');
 
 
   createButton.onclick = () => {
@@ -211,9 +203,9 @@ const init = () => {
 
   characterForm.addEventListener('submit', addCharacter);
   endDayForm.addEventListener('submit', endDay);
-  
+
   setNavigation();
-  
+
   showList();
 };
 

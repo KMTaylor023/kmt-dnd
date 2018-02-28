@@ -23,10 +23,15 @@ const apiFunctions = {
   },
   '/getCharacter': {
     GET: characterHandler.getCharacter,
+    HEAD: characterHandler.getCharacterMeta,
   },
   '/getCharacterList': {
     GET: characterHandler.getCharacterList,
     HEAD: characterHandler.getCharacterListMeta,
+  },
+  '/getLog': {
+    GET: characterHandler.getLog,
+    HEAD: characterHandler.getLogMeta,
   },
   '/addCharacter': {
     POST: characterHandler.addCharacter,

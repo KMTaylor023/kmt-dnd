@@ -6,7 +6,7 @@ const MAX_MONEY = 99999999;
 
 const characters = {};
 
-const characterLogs = {};
+const characterLogs = { money: [] };
 
 let charactersLastModified = 0;
 
@@ -34,11 +34,15 @@ const endCharacterDay = (request, response, body) => {
       || !Number.isInteger(+body.made) || +body.made < 0 || +body.made >= MAX_MONEY) {
     return badRequest(request, response, msg);
   }
-  
-  const character = characters[body.name];
-  const moneyLog = characterLogs[body.name].money;
 
-  moneyLog[character.day] = { made: +body.made, spent: +body.spent };
+  const character = characters[body.name];
+  let moneyLog = characterLogs[body.name].money;
+
+  moneyLog = moneyLog.concat({ day: character.day, made: +body.made, spent: +body.spent });
+
+  if (!moneyLog) {
+    moneyLog = [];
+  }
 
   character.day++;
   character.money += (+body.made - +body.spent);
@@ -49,7 +53,7 @@ const endCharacterDay = (request, response, body) => {
 
   updateTime(character.lastModified);
 
-  return responder.sendResponseMeta(request, response,'application/json', 204);
+  return responder.sendResponseMeta(request, response, 'application/json', 204);
 };
 
 const getCharacter = (request, response, query) => {
@@ -60,6 +64,29 @@ const getCharacter = (request, response, query) => {
   return responder.respondJson(request, response, characters[query.name], 200);
 };
 
+const getCharacterMeta = (request, response, query) => {
+  if (!query.name) { return badRequest(request, response, 'mssing name query parameter'); }
+
+  if (!characters[query.name]) { return badRequest(request, response, `No Character with name '${query.name}'`); }
+
+  return responder.sendResponseMeta(request, response, 'application/json', 200);
+};
+
+const getLog = (request, response, query) => {
+  if (!query.name) { return badRequest(request, response, 'mssing name query parameter'); }
+
+  if (!characters[query.name]) { return badRequest(request, response, `No Character with name '${query.name}'`); }
+
+  return responder.respondJson(request, response, characterLogs[query.name].money, 200);
+};
+
+const getLogMeta = (request, response, query) => {
+  if (!query.name) { return badRequest(request, response, 'mssing name query parameter'); }
+
+  if (!characters[query.name]) { return badRequest(request, response, `No Character with name '${query.name}'`); }
+
+  return responder.sendResponseMeta(request, response, 'application/json', 200);
+};
 const addCharacter = (request, response, body) => {
   let msg = 'name, farm, fav, type, sex, and pet are required params';
   if (!body.name || !body.farm || !body.fav || !body.type
@@ -111,12 +138,15 @@ const getCharacterListMeta = (request, response) => responder.sendResponseMeta(
   response,
   'application/json',
   200,
-  charactersLastModified
+  charactersLastModified,
 );
 
 module.exports = {
   addCharacter,
   getCharacter,
+  getCharacterMeta,
+  getLog,
+  getLogMeta,
   getCharacterList,
   getCharacterListMeta,
   endCharacterDay,
