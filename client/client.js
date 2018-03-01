@@ -1,20 +1,23 @@
 /* eslint-env browser */
-
+/* global d3 */
 
 let currentCharacter = '';
 
 let totalMoneyChangeTemp = 0;
 
+// Handles response returns, populating error if neccesary
 const handleResponse = (xhr, callback) => {
   const error = document.querySelector('#errorMsg');
+  console.log('status: xhr.status');
   switch (xhr.status) {
     case 400:
-      error.innerHTML = '<b>Bad Request</b>';
+      error.innerHTML = `<b>Bad Request: ${xhr.response}</b>`;
       return;
     case 404:
       error.innerHTML = '<b>Not Found</b>';
       return;
     default:
+      error.innerHTML = '';
       if (callback) {
         callback(xhr);
       }
@@ -22,6 +25,7 @@ const handleResponse = (xhr, callback) => {
   }
 };
 
+// structure for the two forms to create their post data
 const getFormData = {
   '/addCharacter': (form) => {
     const nameField = form.querySelector('#nameField');
@@ -53,8 +57,8 @@ const getFormData = {
   },
 };
 
-// TODO: one xhr for all sends, gets heads etc
 
+// shows a section and hides all others
 const showSection = (name) => {
   const sections = document.querySelectorAll('.section');
   const section = document.querySelector(`#${name}`);
@@ -66,6 +70,7 @@ const showSection = (name) => {
   section.style.display = 'block';
 };
 
+// sends xhr post requests, and calls callback on success
 const sendPost = (e, form, callback) => {
   const action = form.getAttribute('action');
   const method = form.getAttribute('method');
@@ -85,6 +90,7 @@ const sendPost = (e, form, callback) => {
   return false;
 };
 
+// sends get requests usually
 const sendOther = (method, action, callback) => {
   const xhr = new XMLHttpRequest();
 
@@ -97,7 +103,7 @@ const sendOther = (method, action, callback) => {
   xhr.send();
 };
 
-
+// Loads a character from the server
 const loadCharacter = (name) => {
   sendOther('GET', `/getCharacter?name=${name}`, (xhr) => {
     const content = JSON.parse(xhr.response);
@@ -117,6 +123,8 @@ const loadCharacter = (name) => {
   });
 };
 
+
+// sets up the list of characters to show
 const setupLists = (xhr) => {
   const content = JSON.parse(xhr.response);
 
@@ -151,19 +159,21 @@ const setupLists = (xhr) => {
   }
 };
 
+// shows lists by calling the getCharacterList api
 const showList = () => {
   sendOther('GET', '/getCharacterList', setupLists);
   showSection('characterList');
 };
 
 
+// sets two of the navigations
 const setNavigation = () => {
-  document.querySelector('#homenav').onclick = (e) => {
+  document.querySelector('#charnav').onclick = (e) => {
     if (currentCharacter !== '') { showSection('currentCharacter'); }
     e.preventDefault();
     return false;
   };
-  document.querySelector('#charnav').onclick = (e) => {
+  document.querySelector('#homenav').onclick = (e) => {
     showList();
     e.preventDefault();
     return false;
@@ -171,6 +181,74 @@ const setNavigation = () => {
 };
 
 
+/* +++ D3 +++ */
+/* thanks for help from https://bl.ocks.org/d3noob/402dd382a51a4f6eea487f9a35566de0 */
+
+
+// initalises all d3 related code, including setting up graph nav button
+const initD3 = () => {
+  const x = d3.scaleLinear().range([70, 500]);
+  const y = d3.scaleLinear().range([500, 0]);
+
+
+  const svg = d3.select('#graphSection').append('svg')
+    .attr('width', 500)
+    .attr('height', 500);
+
+  d3.select('#graphnav').on('click', () => {
+    if (currentCharacter === '') { return; }
+    sendOther('GET', `/getLog?name=${currentCharacter}`, (xhr) => {
+      const content = JSON.parse(xhr.response);
+
+      const s = document.querySelector('svg');
+      while (s.firstChild) {
+        s.removeChild(s.firstChild);
+      }
+
+      svg.append('g');
+
+      x.domain([0, content.length]);
+      y.domain([0, d3.max(content, (d) => {
+        if (d.made > d.spent) { return d.made; }
+        return d.spent;
+      })]);
+
+      const spentline = d3.line()
+        .x(d => x(d.day))
+        .y(d => y(d.spent));
+
+      const madeline = d3.line()
+        .x(d => x(d.day))
+        .y(d => y(d.made));
+
+      svg.selectAll('.madepath')
+        .data(content)
+        .enter()
+        .append('path')
+        .attr('d', madeline(content))
+        .classed('madepath', true)
+        .classed('path', true);
+
+      svg.selectAll('.spentpath')
+        .data(content)
+        .enter()
+        .append('path')
+        .attr('d', spentline(content))
+        .classed('spentpath', true)
+        .classed('path', true);
+
+      svg.append('g')
+        .call(d3.axisLeft(y))
+        .attr('transform', 'translate(70,10)');
+
+      showSection('graphSection');
+    });
+  });
+};
+
+/* --- D3 --- */
+
+// Initialises most forms and buttons
 const init = () => {
   const characterForm = document.querySelector('#characterForm');
   const addCharacter = e => sendPost(e, characterForm, () => {
@@ -207,6 +285,8 @@ const init = () => {
   setNavigation();
 
   showList();
+
+  initD3();
 };
 
 window.onload = init;

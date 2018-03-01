@@ -46,8 +46,8 @@ var getFormData = {
 
     totalMoneyChangeTemp = +madeField.value - +spentField.value;
 
-    madeField.value = "";
-    spentField.value = "";
+    madeField.value = '';
+    spentField.value = '';
 
     return formData;
   }
@@ -163,26 +163,73 @@ var showList = function showList() {
 };
 
 var setNavigation = function setNavigation() {
-  var navas = document.querySelectorAll('.nava');
-  for (var i = 0; i < navas.length; i++) {
-    switch (navas[i].innerHTML) {
-      case 'Character':
-        navas[i].onclick = function (e) {
-          if (currentCharacter !== '') showSection('currentCharacter');
-          e.preventDefault();
-          return false;
-        };
-        break;
-      default:
-        navas[i].onclick = function (e) {
-          showList();
-          e.preventDefault();
-          return false;
-        };
-        break;
+  document.querySelector('#charnav').onclick = function (e) {
+    if (currentCharacter !== '') {
+      showSection('currentCharacter');
     }
-  }
+    e.preventDefault();
+    return false;
+  };
+  document.querySelector('#homenav').onclick = function (e) {
+    showList();
+    e.preventDefault();
+    return false;
+  };
 };
+
+/* +++ D3 +++ */
+/* thanks for help from https://bl.ocks.org/d3noob/402dd382a51a4f6eea487f9a35566de0 */
+
+var initD3 = function initD3() {
+  var x = d3.scaleLinear().range([70, 500]);
+  var y = d3.scaleLinear().range([500, 0]);
+
+  var svg = d3.select("#graphSection").append("svg").attr("width", 500).attr("height", 500);
+
+  d3.select('#graphnav').on('click', function (e) {
+    if (currentCharacter === '') return false;
+    sendOther('GET', '/getLog?name=' + currentCharacter, function (xhr) {
+      var content = JSON.parse(xhr.response);
+
+      var s = document.querySelector('svg');
+      while (s.firstChild) {
+        s.removeChild(s.firstChild);
+      }
+
+      svg.append('g');
+
+      x.domain([0, content.length]);
+      y.domain([0, d3.max(content, function (d) {
+        if (d.made > d.spent) return d.made;
+        return d.spent;
+      })]);
+
+      var spentline = d3.line().x(function (d) {
+        return x(d.day);
+      }).y(function (d) {
+        return y(d.spent);
+      });
+
+      var madeline = d3.line().x(function (d) {
+        return x(d.day);
+      }).y(function (d) {
+        return y(d.made);
+      });
+
+      svg.selectAll('.madepath').data(content).enter().append('path').attr('d', madeline(content)).classed('madepath', true).classed('path', true);
+
+      svg.selectAll('.spentpath').data(content).enter().append('path').attr('d', spentline(content)).classed('spentpath', true).classed('path', true);
+
+      svg.append("g").call(d3.axisLeft(y)).attr("transform", "translate(70,10)");
+
+      showSection('graphSection');
+
+      return false;
+    });
+  });
+};
+
+/* --- D3 --- */
 
 var init = function init() {
   var characterForm = document.querySelector('#characterForm');
@@ -223,6 +270,8 @@ var init = function init() {
   setNavigation();
 
   showList();
+
+  initD3();
 };
 
 window.onload = init;

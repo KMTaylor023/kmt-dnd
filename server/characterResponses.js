@@ -10,14 +10,17 @@ const characterLogs = { money: [] };
 
 let charactersLastModified = 0;
 
+// updates time of character
 const updateTime = (time) => {
   charactersLastModified = time;
 };
 
+// sends a bad request error
 const badRequest = (request, response, msg) => {
   responder.respondJsonFromString(request, response, msg, 'badRequest', 400);
 };
 
+// ends the day for a character, changing its money value and adding to its day logs
 const endCharacterDay = (request, response, body) => {
   let msg = 'name, made, and spent are required params';
   if (!body.name || !body.spent || !body.made) {
@@ -35,6 +38,7 @@ const endCharacterDay = (request, response, body) => {
     return badRequest(request, response, msg);
   }
 
+
   const character = characters[body.name];
   let moneyLog = characterLogs[body.name].money;
 
@@ -48,6 +52,8 @@ const endCharacterDay = (request, response, body) => {
   character.money += (+body.made - +body.spent);
   character.lastModified = new Date().getTime();
 
+  characterLogs[body.name].money = moneyLog;
+
   if (character.money < 0) { character.money = 0; }
   if (character.money > MAX_MONEY) { character.money = MAX_MONEY; }
 
@@ -56,6 +62,7 @@ const endCharacterDay = (request, response, body) => {
   return responder.sendResponseMeta(request, response, 'application/json', 204);
 };
 
+// returns a character
 const getCharacter = (request, response, query) => {
   if (!query.name) { return badRequest(request, response, 'mssing name query parameter'); }
 
@@ -64,6 +71,8 @@ const getCharacter = (request, response, query) => {
   return responder.respondJson(request, response, characters[query.name], 200);
 };
 
+
+// returns meta information on character
 const getCharacterMeta = (request, response, query) => {
   if (!query.name) { return badRequest(request, response, 'mssing name query parameter'); }
 
@@ -72,14 +81,15 @@ const getCharacterMeta = (request, response, query) => {
   return responder.sendResponseMeta(request, response, 'application/json', 200);
 };
 
+// returns a log for a character
 const getLog = (request, response, query) => {
   if (!query.name) { return badRequest(request, response, 'mssing name query parameter'); }
 
   if (!characters[query.name]) { return badRequest(request, response, `No Character with name '${query.name}'`); }
-
   return responder.respondJson(request, response, characterLogs[query.name].money, 200);
 };
 
+// returns meta information for a character log
 const getLogMeta = (request, response, query) => {
   if (!query.name) { return badRequest(request, response, 'mssing name query parameter'); }
 
@@ -87,6 +97,8 @@ const getLogMeta = (request, response, query) => {
 
   return responder.sendResponseMeta(request, response, 'application/json', 200);
 };
+
+// adds a new character
 const addCharacter = (request, response, body) => {
   let msg = 'name, farm, fav, type, sex, and pet are required params';
   if (!body.name || !body.farm || !body.fav || !body.type
@@ -120,25 +132,28 @@ const addCharacter = (request, response, body) => {
   // character.notes = {}; maybe later
 
   characters[character.name] = character;
-  characterLogs[character.name] = { money: [{ spent: 0, made: START_MONEY }] };
+  characterLogs[character.name] = { money: [{ day: 0, spent: 0, made: START_MONEY }] };
 
   updateTime(character.lastModified);
 
   return responder.sendResponseMeta(request, response, 'application/json', 201);
 };
 
+
+// returns list of all characters
 const getCharacterList = (request, response) => {
   const chars = Object.keys(characters);
   const json = { names: chars, lastModified: charactersLastModified };
   return responder.respondJson(request, response, json, 200);
 };
 
+// returns meta information on character list
 const getCharacterListMeta = (request, response) => responder.sendResponseMeta(
   request,
   response,
   'application/json',
   200,
-  charactersLastModified,
+  charactersLastModified
 );
 
 module.exports = {

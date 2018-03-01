@@ -26,6 +26,32 @@ body {
   display: none;
 }
 
+/* ++++ graph ++++ */
+.path {
+  fill: none;
+  stroke-width: 2px;
+}
+
+.madepath {
+  stroke: green;
+}
+
+.spentpath {
+  stroke: red;
+}
+
+#graphSection {
+  width: 100%;
+}
+
+svg {
+  display: block;
+  max-width: 500px;
+  margin: 25px auto;
+  position: relative;
+}
+/* ---- graph ---- */
+
 /* ++++ navigation. ++++*/
 /* Code thanks to https://www.w3schools.com/css/css_navbar.asp */
 #nav {
@@ -50,6 +76,12 @@ body {
 
 #nav li a:hover {
     background-color: #FF6700;
+}
+
+#nav h1{
+  text-align: center;
+  color: #20FF16;
+  font-size: 34px;
 }
 
 /* ---- end navigation ---- */

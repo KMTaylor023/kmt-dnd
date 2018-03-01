@@ -1,3 +1,5 @@
+// I believe this file is rather self explanatory
+
 const fs = require('fs');
 const responder = require('./responder.js');
 
